@@ -1,9 +1,9 @@
 name: Publish Docker image
 
-on: 
+on:
   push:
     tags:
-      - '**'
+      - "**"
   pull_request:
     branches:
       - master
@@ -15,9 +15,18 @@ jobs:
     permissions:
       packages: write
       contents: read
+    strategy:
+      matrix:
+        include:
+          - dockerfile: Dockerfile
+            suffix: ""
+            platforms: linux/amd64,linux/arm64,linux/arm/v7
+          - dockerfile: Dockerfile-tengine
+            suffix: "-tengine"
+            platforms: linux/amd64,linux/arm64,linux/arm/v7
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -45,36 +54,29 @@ jobs:
           images: |
             ghcr.io/${{ github.repository }}/fastdfs-nginx
             ygqygq2/fastdfs-nginx
+          flavor: |
+            suffix=${{ matrix.suffix }}
 
-      - name: Convert fastdfs tengine tag
-        id: convert
-        run: |
-          DOCKER_METADATA_OUTPUT_NEW_TAGS=$(echo ${DOCKER_METADATA_OUTPUT_TAGS}-tengine|sed 's@ @-tengine,@g')
-          echo "DOCKER_METADATA_OUTPUT_NEW_TAGS: $DOCKER_METADATA_OUTPUT_NEW_TAGS"
-          echo "DOCKER_METADATA_OUTPUT_NEW_TAGS=${DOCKER_METADATA_OUTPUT_NEW_TAGS}" >> $GITHUB_OUTPUT
-
-      - name: Build and push Docker images 1
+      - name: Build and push Docker images
         uses: docker/build-push-action@v6
         with:
           context: ./
-          file: ./Dockerfile-tengine
-          push: true
-          tags: ${{ steps.convert.outputs.DOCKER_METADATA_OUTPUT_NEW_TAGS }}
-          labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
-
-      - name: Build and push Docker images 2
-        uses: docker/build-push-action@v6
-        with:
-          context: ./
-          file: ./Dockerfile
+          file: ./${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: ${{ matrix.platforms }}
+
+  test:
+    name: Test with Docker Compose
+    runs-on: ubuntu-latest
+    needs: push_to_registries
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
 
       - name: Docker Compose Action
-        uses: hoverkraft-tech/compose-action@v2.4.1
+        uses: hoverkraft-tech/compose-action@v2
         with:
-          compose-file: './docker-compose.yml'
-          down-flags: '--volumes'
+          compose-file: "./docker-compose.yml"
+          down-flags: "--volumes"
