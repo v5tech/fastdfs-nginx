@@ -17,7 +17,7 @@ jobs:
       contents: read
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -54,7 +54,7 @@ jobs:
           echo "DOCKER_METADATA_OUTPUT_NEW_TAGS=${DOCKER_METADATA_OUTPUT_NEW_TAGS}" >> $GITHUB_OUTPUT
 
       - name: Build and push Docker images 1
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./
           file: ./Dockerfile-tengine
@@ -64,7 +64,7 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
 
       - name: Build and push Docker images 2
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: ./
           file: ./Dockerfile
@@ -74,7 +74,7 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
 
       - name: Docker Compose Action
-        uses: isbang/compose-action@v1.5.1
+        uses: hoverkraft-tech/compose-action@v2.4.1
         with:
           compose-file: './docker-compose.yml'
           down-flags: '--volumes'

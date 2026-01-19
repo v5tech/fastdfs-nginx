@@ -27,18 +27,20 @@ fdfs_upload_file /etc/fdfs/client.conf /tmp/test.html
 ```
 
 ## Env vars
-|Env var name       |Effect                      |Default    |
-|-------------------|----------------------------|-----------|
-|PORT               |tracker/storage port        |22122/23000|
-|GROUP_NAME         |group name                  |`group1`   |
-|TRACKER_SERVER     |tracker server and port     |``         |
-|GET_TRACKER_SERVER |get tracker server command  |``         |
-|CUSTOM_CONFIG      |use your custom config file |`false`    |
+
+| Env var name       | Effect                      | Default     |
+| ------------------ | --------------------------- | ----------- |
+| PORT               | tracker/storage port        | 22122/23000 |
+| GROUP_NAME         | group name                  | `group1`    |
+| TRACKER_SERVER     | tracker server and port     | ``          |
+| GET_TRACKER_SERVER | get tracker server command  | ``          |
+| CUSTOM_CONFIG      | use your custom config file | `false`     |
 
 > Tips:
-> * `CUSTOM_CONFIG` when not `false`, please map your config files/directory.
-> * Fastdfs config directory is `/etc/fdfs`.
-> * Nginx/Tengine server config directory is `/usr/local/nginx/conf/conf.d`, `nginx` use `include conf.d/*.conf;` include server files.
+>
+> - `CUSTOM_CONFIG` when not `false`, please map your config files/directory.
+> - Fastdfs config directory is `/etc/fdfs`.
+> - Nginx/Tengine server config directory is `/usr/local/nginx/conf/conf.d`, `nginx` use `include conf.d/*.conf;` include server files.
 
 ## Use docker-compose
 
@@ -47,11 +49,13 @@ docker-compose up -d
 ```
 
 > Tips:
-> * 使用 `network_mode: host` 时注意添加 hosts，最好是把所有节点 hosts 都添加上，而且 tracker 地址不能使用 127.0.0.1，可以使用内网 IP
+>
+> - 使用 `network_mode: host` 时注意添加 hosts，最好是把所有节点 hosts 都添加上，而且 tracker 地址不能使用 127.0.0.1，可以使用内网 IP
 
 示例：
+
 ```yaml
-version: '3'
+version: "3"
 services:
   tracker:
     container_name: tracker
@@ -79,6 +83,7 @@ services:
 ```
 
 # Fastdfs-nginx in kubernetes
+
 ```
 helm repo add ygqygq2 https://ygqygq2.github.io/charts/
 helm repo update
